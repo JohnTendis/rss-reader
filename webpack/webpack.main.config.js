@@ -10,5 +10,11 @@ module.exports = {
   },
   resolve: {
     extensions: [".js", ".ts", ".jsx", ".tsx", ".css", ".json"],
+    fallback: {
+      http: require.resolve("stream-http"),
+      https: require.resolve("https-browserify"),
+      timers: require.resolve("timers-browserify"),
+    },
   },
+  plugins: require("./webpack.plugins"),
 };

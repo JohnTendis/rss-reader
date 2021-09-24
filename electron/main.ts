@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain, session, shell } from "electron";
 
 let mainWindow: BrowserWindow | null;
 
@@ -20,10 +20,25 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true,
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
+      webSecurity: false,
     },
   });
 
+  // Developer tools ON
+  // TODO: Hide on product
+  mainWindow.webContents.openDevTools();
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+
+  // Open links [target="_blank"] or if there is [<base target="_blank" />] in external browser
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    // config.fileProtocol is my custom file protocol
+    // if (url.startsWith(config.fileProtocol)) {
+    //     return { action: 'allow' };
+    // }
+    // open url in a browser and prevent default
+    shell.openExternal(url);
+    return { action: "deny" };
+  });
 
   mainWindow.on("closed", () => {
     mainWindow = null;
@@ -42,8 +57,36 @@ async function registerListeners() {
 app
   .on("ready", createWindow)
   .whenReady()
+  .then(() => {
+    ///CSP
+    session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+      callback({
+        responseHeaders: {
+          ...details.responseHeaders,
+          "Content-Security-Policy": [
+            "connect-src 'self' http://localhost:3000/ https://randomuser.me/ https://www.reddit.com/",
+          ],
+        },
+      });
+    });
+
+    ///CORS
+    // const filter = {
+    //   urls: ["*"],
+    // };
+    // session.defaultSession.webRequest.onBeforeSendHeaders(
+    //   filter,
+    //   (details, callback) => {
+    //     details.requestHeaders["Origin"] = null;
+    //     callback({ requestHeaders: details.requestHeaders });
+    //   }
+    // );
+  })
   .then(registerListeners)
   .catch((e) => console.error(e));
+
+// Disable CORS
+app.commandLine.appendSwitch("disable-features", "OutOfBlinkCors");
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
