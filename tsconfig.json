@@ -15,6 +15,6 @@
     },
     "jsx": "react-jsx"
   },
-  "include": ["src/**/*", "electron/**/*", "webpack/**/*"],
+  "include": ["src/**/*", "electron/**/*", "webpack/**/*", "database/**/*"],
   "exclude": ["./dist/**/*"]
 }

@@ -14,6 +14,7 @@ module.exports = {
       http: require.resolve("stream-http"),
       https: require.resolve("https-browserify"),
       timers: require.resolve("timers-browserify"),
+      buffer: require.resolve("buffer"),
     },
   },
   plugins: require("./webpack.plugins"),

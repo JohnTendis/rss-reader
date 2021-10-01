@@ -1,0 +1,18 @@
+.rss-feed-showcase img {
+  max-height: 300px;
+  max-width: 300px;
+}
+
+.spoiler > .spoiler_title {
+  color: blue;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+}
+
+.spoiler > .spoiler_text {
+  display: none;
+}
+
+.spoiler:focus > .spoiler_text {
+  display: block;
+}

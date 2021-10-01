@@ -17,15 +17,16 @@ function createWindow() {
     height: 700,
     backgroundColor: "#191622",
     webPreferences: {
-      nodeIntegration: false,
+      nodeIntegration: true,
       contextIsolation: true,
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
+      // FIXME: setup CORS policy and make it true
       webSecurity: false,
     },
   });
 
   // Developer tools ON
-  // TODO: Hide on product
+  // FIXME: Hide on product
   mainWindow.webContents.openDevTools();
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
@@ -52,6 +53,14 @@ async function registerListeners() {
   ipcMain.on("message", (_, message) => {
     console.log(message);
   });
+
+  // ipcMain.on("asynchronous-message", (event, arg) => {
+  //   const sql = arg;
+  //   event.reply("asynchronous-reply", database.allDocs(sql));
+  //   database.all(sql, (err: any, rows: any) => {
+  //     event.reply("asynchronous-reply", (err && err.message) || rows);
+  //   });
+  // });
 }
 
 app
@@ -64,7 +73,8 @@ app
         responseHeaders: {
           ...details.responseHeaders,
           "Content-Security-Policy": [
-            "connect-src 'self' http://localhost:3000/ https://randomuser.me/ https://www.reddit.com/",
+            "connect-src * data: blob: 'unsafe-inline'",
+            // "connect-src 'self' http://localhost:3000/ https://randomuser.me/ https://www.reddit.com/",
           ],
         },
       });

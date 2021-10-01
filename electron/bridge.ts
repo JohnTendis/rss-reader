@@ -6,6 +6,8 @@ import axios, { AxiosResponse } from "axios";
 const fakeDataUrl =
   "https://randomuser.me/api/?results=5&inc=name,gender,email,nat&noinfo";
 
+import database from "../database";
+
 export const api = {
   /**
    * Here you can expose functions to the renderer process
@@ -29,6 +31,28 @@ export const api = {
   on: (channel: string, callback: (data: any) => any) => {
     ipcRenderer.on(channel, (_, data) => callback(data));
   },
+
+  database: {
+    getAllRssFeeds: () =>
+      database.allDocs({
+        include_docs: true,
+        attachments: true,
+      }),
+    postRssFeed: () => {
+      return 0;
+    },
+    updateRssFeed: () => {
+      return 0;
+    },
+  },
+  // send: (message: string) => {
+  //   return new Promise((resolve) => {
+  //     ipcRenderer.once("asynchronous-reply", (_, arg) => {
+  //       resolve(arg);
+  //     });
+  //     ipcRenderer.send("asynchronous-message", message);
+  //   });
+  // },
 };
 
 contextBridge.exposeInMainWorld("Main", api);

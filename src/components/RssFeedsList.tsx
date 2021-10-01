@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from "react";
 
-import "antd/dist/antd.css";
-import { List, message, Avatar, Spin } from "antd";
+import "../styles/RssFeedsList.css";
+import { List, message, Avatar, Spin, Button } from "antd";
 
 import InfiniteScroll from "react-infinite-scroller";
 
 import axios, { AxiosResponse } from "axios";
+import { useDispatch, useSelector } from "react-redux";
+
+import { RootState } from "../store";
+import simpleSlice from "../store/slices/simple";
+
+import { WifiOutlined, PlusOutlined } from "@ant-design/icons";
 
 const fakeDataUrl =
   "https://randomuser.me/api/?results=30&inc=name,gender,email,nat&noinfo";
@@ -21,9 +27,14 @@ const RssFeedsList = () => {
     hasMore: true,
   });
 
+  const dispatch = useDispatch();
+
   useEffect(() => {
-    fetchData((res) => {
-      setState((state) => ({ ...state, data: res.data.results as [] }));
+    window.Main.database.getAllRssFeeds().then((res) => {
+      setState((state) => ({
+        ...state,
+        data: res.rows.map((val) => val.doc) as [],
+      }));
     });
   }, []);
 
@@ -53,15 +64,25 @@ const RssFeedsList = () => {
         <List
           dataSource={state.data}
           renderItem={(item) => (
-            <List.Item key={item.id}>
+            <List.Item
+              key={item._id}
+              onClick={() => {
+                dispatch(simpleSlice.actions.setCurrentRssFeedUrl(item.url));
+              }}
+            >
               <List.Item.Meta
                 avatar={
-                  <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
+                  <Avatar
+                    style={{
+                      backgroundColor: "#ffb121",
+                    }}
+                    icon={<WifiOutlined />}
+                  />
                 }
-                title={<a href="https://ant.design">{item.name.last}</a>}
-                description={item.email}
+                title={item.title}
+                description={item.url}
               />
-              <div>Content</div>
+              {/* <div>Content</div> */}
             </List.Item>
           )}
         >
@@ -72,6 +93,15 @@ const RssFeedsList = () => {
           )}
         </List>
       </InfiniteScroll>
+      <Button
+        id="btn-add-feed"
+        type="primary"
+        shape="round"
+        icon={<PlusOutlined />}
+        size="large"
+      >
+        Feed
+      </Button>
     </div>
   );
 };
